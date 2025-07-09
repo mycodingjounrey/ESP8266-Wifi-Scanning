@@ -1,0 +1,29 @@
+#include <ESP8266WiFi.h> 
+
+const char* ssid = "ESP_SERVER";
+const char* password = "12345678";
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("\nConnected. IP: " + WiFi.localIP());
+
+  WiFiClient client;
+  if (client.connect("192.168.4.1", 80)) {
+    client.print("GET / HTTP/1.1\r\nHost: 192.168.4.1\r\nConnection: close\r\n\r\n");
+    while (client.connected()) {
+      while (client.available()) {
+        Serial.write(client.read());
+      }
+    }
+    client.stop();
+  }
+}
+
+void loop() {}
